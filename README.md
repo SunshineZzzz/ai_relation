@@ -39,6 +39,11 @@
     - [RAG重排](#rag重排)
     - [RAG生成](#rag生成)
   - [RAG总结](#rag总结)
+- [ContextEngineering](#contextengineering)
+  - [ContextWindow](#contextwindow)
+  - [ContextEngineering兴起原因](#contextengineering兴起原因)
+  - [ContextEngineering实现方法](#contextengineering实现方法)
+
 
 ## MCP
 
@@ -595,3 +600,26 @@ RAG(Retrieval-Augmented Generation)，是一种基于检索增强生成的技术
 ![alt text](img/rag_summary1.png)
 
 ![alt text](img/rag_summary2.png)
+
+## ContextEngineering
+
+上下文工程(ContextEngineering)，**优化模型输入**，精心设计给模型的输入内容，让模型在有限的Context Window里面，尽可能理解的更准，答得更好，花的更少。核心思想，不改变模型的结构，只改变模型能"看到"的什么。
+
+### ContextWindow
+
+![alt text](img/contextwindow1.png)
+
+![alt text](img/contextwindow2.png)
+
+![alt text](img/contextwindow3.png)
+
+![alt text](img/contextwindow4.png)
+
+### ContextEngineering兴起原因
+
+**Agent流行**
+
+![alt text](img/contextengineering_risereason1.png)
+
+### ContextEngineering实现方法
+
