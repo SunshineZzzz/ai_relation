@@ -623,3 +623,22 @@ RAG(Retrieval-Augmented Generation)，是一种基于检索增强生成的技术
 
 ### ContextEngineering实现方法
 
+#### 保存Context
+
+![alt text](img/contextengineeringimplementation_savecontext1.png)
+
+#### 选择Context
+
+![alt text](img/contextengineeringimplementation_selectcontext1.png)
+
+#### 压缩Context
+
+![alt text](img/contextengineeringimplementation_compresscontext1.png)
+
+![alt text](img/contextengineeringimplementation_compresscontext2.png)
+
+![alt text](img/contextengineeringimplementation_compresscontext3.png)
+
+#### 隔离Context
+
+![alt text](img/contextengineeringimplementation_isolation1.png)
