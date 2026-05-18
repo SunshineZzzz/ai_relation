@@ -43,6 +43,12 @@
   - [ContextWindow](#contextwindow)
   - [ContextEngineering兴起原因](#contextengineering兴起原因)
   - [ContextEngineering实现方法](#contextengineering实现方法)
+- [A2A协议](#a2a协议)
+  - [抓包分析A2A协议](#抓包分析a2a协议)
+  - [A2A核心概念回顾](#a2a核心概念回顾)
+  - [A2A运行链路流程图](#a2a运行链路流程图)
+  - [A2A如何处理流式返回](#a2a如何处理流式返回)
+  - [更多数量Agent协作流程](#更多数量agent协作流程)
 
 
 ## MCP
@@ -642,3 +648,103 @@ RAG(Retrieval-Augmented Generation)，是一种基于检索增强生成的技术
 #### 隔离Context
 
 ![alt text](img/contextengineeringimplementation_isolation1.png)
+
+## A2A协议
+
+Agent to Agent Protocol (A2A) 是由 Google 推出的开源协议，旨在实现不透明 Agent 智能体应用程序之间的通信和互操作性。
+
+![alt text](img/a2a1.png)
+
+![alt text](img/a2a2.png)
+
+### 抓包分析A2A协议
+
+/.well-known/agent.json 
+
+每个Agent都需要在这个路径下面返回它的基本信息。
+
+![alt text](img/parse_a2a1.png)
+
+这个json在A2A协议里面有一个名字叫做Agent Card。
+
+返回值部分含义：
+
+- capabilities，代表这个Agent有哪些功能。图中的"streaming":false表示这个Agent不支持流式返回。
+
+- defaultInputModes，代表这个Agent默认接受的输入模式。图中的"text"表示这个Agent默认接受文本输入。
+
+- defaultOutputModes，代表这个Agent的默认输出模式。图中的"text"表示这个Agent默认输出文本响应。
+
+- description，代表这个Agent的描述。
+
+- name，代表这个Agent的名称。
+
+- skills，代表这个Agent的所包含的功能列表。
+
+- url，代表这个Agent的URL。
+
+- version，代表这个Agent的版本号。
+
+![alt text](img/parse_a2a2.png)
+
+![alt text](img/parse_a2a3.png)
+
+请求部分含义：
+
+- id，代表这个请求的唯一标识符。
+
+- method，代表这个请求的方法。图中的"message/send"代表希望Agent直接返回结果，"message/stream"代表希望Agent返回流式结果。JSON-RPC只定义了调用方的请求体里面需要包含method的属性，并没有对method的值做出规定。"meesage/send"和"message/stream"是A2A协议里面定义的规定。
+
+- params，代表这个请求的参数。JSON-RPC只定义了调用方的请求体里面需要包含params的属性，并没有对params的值做出规定。
+
+![alt text](img/parse_a2a4.png)
+
+返回值部分含义：
+
+- result，代表这个请求的结果。这个结果本质上是叫做一个Task，Task在A2A协议里面的一个概念，代表一个任务，当被调用的Agent接收到请求之后，它一般会生成一个Task，并且在返回结果的时候填充上Task的各种信息。注意Task不是调用方Agent生成的，而是被调用的Agent生成的。
+
+- artifacts，代表了Agent的产物，这个产物可以是一个文本，一个图片等。
+
+- contextId，代表这个请求的上下文ID。请求里面也是有这个属性的。
+
+- history，代表这个请求的历史记录。
+
+### A2A核心概念回顾
+
+![alt text](img/a2a_coreconceptsreview1.png)
+
+![alt text](img/a2a_coreconceptsreview2.png)
+
+![alt text](img/a2a_coreconceptsreview3.png)
+
+![alt text](img/a2a_coreconceptsreview4.png)
+
+![alt text](img/a2a_coreconceptsreview5.png)
+
+### A2A运行链路流程图
+
+![alt text](img/a2a_runchain1.png)
+
+![alt text](img/a2a_runchain2.png)
+
+![alt text](img/a2a_runchain3.png)
+
+![alt text](img/a2a_runchain4.png)
+
+### A2A如何处理流式返回
+
+![alt text](img/a2a_handlestreamingrst1.png)
+
+![alt text](img/a2a_handlestreamingrst2.png)
+
+![alt text](img/a2a_handlestreamingrst3.png)
+
+![alt text](img/a2a_handlestreamingrst4.png)
+
+![alt text](img/a2a_handlestreamingrst5.png)
+
+![alt text](img/a2a_handlestreamingrst6.png)
+
+### 更多数量Agent协作流程
+
+![alt text](img/a2a_moreagentcollaboration1.png)
