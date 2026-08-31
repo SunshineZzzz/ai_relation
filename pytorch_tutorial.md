@@ -13,6 +13,9 @@
         - [张量的转置](#张量的转置)
         - [张量的逐元素算术运算](#张量的逐元素算术运算)
         - [张量的统计聚合操作](#张量的统计聚合操作)
+        - [PyTorch v.s. NumPy](#pytorch-vs-numpy)
+        - [张量的设备](#张量的设备)
+- [How to Calculate Gradient?](#how-to-calculate-gradient)
 
 ## 先决条件
 
@@ -303,3 +306,75 @@ PyTorch 张量的基础逐元素算术运算（Element-wise Operations）。
 
 2. Mean（求平均值）：`y = x.mean()`
     - 作用：计算张量 x 中所有元素的算术平均值（即 `x.sum() / x.numel()`）。同样返回一个标量。
+
+#### PyTorch v.s NumPy
+
+![alt text](./img/pytorch/pytorch_vs_numpy1.png)
+
+PyTorch 在设计 Tensor 的 API 时故意模仿了 NumPy 的习惯，让两者在查看数据基本属性时的语法保持完全一致。
+
+| 属性访问 | 语法（ `PyTorch` / `NumPy` ） | 含义与作用 |
+| :--- | :--- | :--- |
+| **形状 / 维度** | `x.shape` | 返回张量或数组的维度（尺寸），如 `(3, 224, 224)`。（注：*PyTorch* 也可以用方法 `x.size()`） |
+| **数据类型** | `x.dtype` | 返回元素的数据类型，如 `float32`，`int64` 等。 |
+
+![alt text](./img/pytorch/pytorch_vs_numpy2.png)
+
+| 操作类型 / 含义 | PyTorch | NumPy |
+| :--- | :--- | :--- |
+| **重塑形状 (Reshape)** | `x.reshape(...)` / `x.view(...)` | `x.reshape(...)` |
+| **压缩维度 (Squeeze)**<br>*(移除长度为 1 的维度)* | `x.squeeze()` | `x.squeeze()` |
+| **扩充维度 (Unsqueeze)**<br>*(在指定轴插入长度为 1 的维度)* | `x.unsqueeze(1)` | `np.expand_dims(x, 1)` |
+
+#### 张量的设备
+
+![alt text](./img/pytorch/tensor_device1.png)
+
+PyTorch 中张量（Tensor）与模型模块（Module）的设备分配与迁移机制（Device Management）。
+
+1. 默认机制（Default）：
+    - 在 PyTorch 中，默认创建的所有 Tensor 和神经网络模型（nn.Module）都会保存在 CPU 内存中并在 CPU 上执行计算。
+2. 设备迁移 API (.to())：
+    - 迁移到 CPU：x = x.to('cpu')，将数据转移至主机内存（系统 RAM）。
+    - 迁移到 GPU (CUDA)：x = x.to('cuda')，将数据从 CPU 转移到显卡显存（VRAM），利用 GPU 并行加速计算。
+
+![alt text](./img/pytorch/tensor_device2.png)
+
+关键细节与工程实践
+
+1. torch.cuda.is_available()：
+    - 返回布尔值 True 或 False。
+    - 它不仅检查你的电脑上有没有 NVIDIA 显卡，还会验证是否正确安装了匹配的 CUDA Driver 和 PyTorch CUDA 版本。
+
+2. 多卡指定 ('cuda:X')：
+    - 这里的 cuda 指的是 NVIDIA CUDA 软件驱动框架及设备识别前缀，而不是指单个物理计算单元。
+    - 编号从 0 开始，cuda:0 代表第一张默认 GPU。
+    - 也可以通过环境变量在终端临时限制运行卡号：CUDA_VISIBLE_DEVICES=0,1 python train.py。
+
+3. 为什么 GPU 适合深度学习 / 矩阵运算？：
+    - CPU：适合做高复杂的顺序逻辑控制（少量强大的 Core）。
+    - GPU：拥有数千个小计算单元（CUDA Cores），非常适合对大规模矩阵/张量同时执行相同的加乘指令（SIMD/SIMT），从而将矩阵乘法加速几十甚至上百倍。
+
+
+## How to Calculate Gradient?
+
+![alt text](./img/pytorch/tensor_howtocalcgradient1.png)
+
+PyTorch 中使用 Autograd（自动求导引擎）计算梯度的完整过程
+
+1. 步骤 1：创建需要求导的张量
+    - 代码：`x = torch.tensor([[1., 0.], [-1., 1.]], requires_grad=True)`
+    - 数学：定义矩阵 $x = \begin{bmatrix} 1 & 0 \\ -1 & 1 \end{bmatrix}$。
+    - 关键点：requires_grad=True 告诉 PyTorch 开始追踪对 $x$ 的所有计算操作，以便后续计算梯度。
+2. 步骤 2：前向传播（计算目标标量）
+    - 代码：`z = x.pow(2).sum()`
+    - 数学：$z = \sum_{i}\sum_{j} x_{i,j}^2 = 1^2 + 0^2 + (-1)^2 + 1^2 = 3$。
+    - 含义：先对 $x$ 的每个元素平方，再求和得到标量 $z$（通常充当损失函数 Loss）。
+3. 步骤 3：反向传播（自动求导）
+    - 代码：`z.backward()`
+    - 数学：根据微积分求导法则，对偏导数公式求解：$\frac{\partial z}{\partial x_{i,j}} = \frac{\partial (x_{i,j}^2)}{\partial x_{i,j}} = 2 x_{i,j}$。
+    - 含义：触发自动求导引擎，利用链式法则计算 $z$ 关于 $x$ 内部每个元素的偏导数。
+4. 步骤 4：提取计算得到的梯度
+    - 代码：`x.grad`
+    - 数学：将 $x$ 的具体数值代入导数公式 $2x$ 中：$$\frac{\partial z}{\partial x} = 2 \cdot \begin{bmatrix} 1 & 0 \\ -1 & 1 \end{bmatrix} = \begin{bmatrix} 2 & 0 \\ -2 & 2 \end{bmatrix}$$
+    - 结果：输出打印出的梯度张量 tensor([[2., 0.], [-2., 2.]])。
