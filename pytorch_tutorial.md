@@ -3,6 +3,7 @@
 - [什么是PyTorch](#什么是pytorch)
 - [PyTorch与TensorFlow](#pytorch与tensorflow)
 - [深度神经网络训练过程概述](#深度神经网络训练过程概述)
+    - [数据集与数据加载器](#数据集与数据加载器)
 - [什么是张量计算](#什么是张量计算)
     - [张量数据类型](#张量数据类型)
     - [张量的形态](#张量的形态)
@@ -93,6 +94,35 @@ back_to_np = tensor_data.numpy()
     - Training（训练）：将数据喂给网络，算 Loss，做反向传播（loss.backward()），用 Optimizer 更新权重。
     - Validation（验证）：在训练过程中每隔几轮验证一次，用来调参或判断模型是否过拟合（通过指标反馈回 Training 决定是否继续训练或调整策略）。
     - Testing（测试）：模型彻底训练好后，用从未见过的独立测试集评估最终的泛化性能。
+
+### 数据集与数据加载器
+
+![alt text](./img/pytorch/dnn_procedure_dataset_dataloader1.png)
+
+如何把硬盘里的文件（如图片、文本、3D模型数据等）规范地喂给神经网络。
+
+1. __init__(self, file)：初始化与加载数据
+    - 作用：实例化这个类时最先执行。
+    - 通常在这里做：读取路径、加载文件列表、做初始的数据预处理（比如读取图片路径、加载 CSV 等）。
+2. __getitem__(self, index)：根据索引取单条数据
+    - 作用：支持像数组一样用 dataset[i] 去取第 index 条数据。
+    - 通常在这里做：把第 index 项数据从磁盘/内存中拉出来，转换成 torch.Tensor 类型返回。
+3. __len__(self)：获取数据集总长度
+    - 作用：支持用 Python 的 len(dataset) 查看里面一共有多少条样本。
+
+![alt text](./img/pytorch/dnn_procedure_dataset_dataloader2.png)
+
+DataLoader 如何自动化地把 Dataset 里的单条数据批量打包（Batching）并喂给模型 的工作原理。
+
+核心参数与机制解析
+
+1. dataset：传入上一张图写好的数据容器。
+
+2. batch_size：指定每个批次包含多少条数据（例如图中一次抽取 5 条，合成一个 mini-batch）。
+
+3. shuffle=True / False：控制是否打乱抽取顺序。
+    - 训练阶段（Training: True）：必须设为 True。每轮训练前随机打乱索引，防止模型记住数据的先后顺序，避免过拟合。
+    - 测试阶段（Testing: False）：通常设为 False。评估模型时按固定顺序读取即可，方便复现结果。
 
 ## 什么是张量
 
@@ -378,3 +408,4 @@ PyTorch 中使用 Autograd（自动求导引擎）计算梯度的完整过程
     - 代码：`x.grad`
     - 数学：将 $x$ 的具体数值代入导数公式 $2x$ 中：$$\frac{\partial z}{\partial x} = 2 \cdot \begin{bmatrix} 1 & 0 \\ -1 & 1 \end{bmatrix} = \begin{bmatrix} 2 & 0 \\ -2 & 2 \end{bmatrix}$$
     - 结果：输出打印出的梯度张量 tensor([[2., 0.], [-2., 2.]])。
+
