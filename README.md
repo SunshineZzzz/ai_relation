@@ -1,4 +1,5 @@
 - [misc](misc.md)
 - [ML2021](ML2021.md)
+    - [HW1](ML2021_HW1.md)
 - [Colab Tutorial](colab_tutorial.md)
 - [Pytorch Tutorial](pytorch_tutorial.md)
