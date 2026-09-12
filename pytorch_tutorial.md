@@ -644,6 +644,8 @@ optimizer.step()       # 3. 触发优化器，按 W_new = W_old - lr * g 更新�
 
 1. `model.eval()`
     - 切换模型为评估模式。主要用来关闭 Dropout（让所有神经元都参与预测）和冻结 Batch Normalization 的均值/方差更新。
+        - Dropout，训练时，随机丢弃一部分神经元（防止过拟合）。评估的时候，	不丢弃，全部保留
+        - BatchNorm，训练时，用当前批次算均值和方差。评估时，用训练时累积的移动均值/方差。
 2. `total_loss = 0`
     - 初始化累加器：用来累加整个验证集上所有样本的总损失值。
 3. `for x, y in dv_set:`
